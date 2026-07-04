@@ -28,6 +28,7 @@ DEFAULT_BOARD_OPTIONS = ",".join(
         "CDCOnBoot=cdc",
     )
 )
+ARDUINO_EXAMPLES_ROOT = Path("examples") / "Arduino"
 
 
 def normalize_path(value: str) -> str:
@@ -44,20 +45,10 @@ def run_git(args: list[str]) -> list[str]:
     return [normalize_path(line) for line in result.stdout.splitlines() if line.strip()]
 
 
-def is_arduino_root(path: Path) -> bool:
-    normalized = path.name.lower().replace("_", "-")
-    return path.is_dir() and normalized.startswith("arduino")
-
-
 def discover_roots() -> list[Path]:
-    examples = Path("examples")
-    if not examples.is_dir():
-        return []
-
-    return sorted(
-        (path for path in examples.iterdir() if is_arduino_root(path)),
-        key=lambda item: item.as_posix().lower(),
-    )
+    if ARDUINO_EXAMPLES_ROOT.is_dir():
+        return [ARDUINO_EXAMPLES_ROOT]
+    return []
 
 
 def is_sketch_dir(path: Path) -> bool:

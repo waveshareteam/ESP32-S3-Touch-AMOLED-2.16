@@ -21,6 +21,7 @@ GLOBAL_EXAMPLE_PATTERNS = (
     "config/**/*.defaults",
 )
 DEFAULT_IDF_VERSIONS = ("v5.5.4", "v6.0.2")
+ESP_IDF_EXAMPLES_ROOT = Path("examples") / "ESP-IDF"
 
 
 def run_git(args: list[str]) -> list[str]:
@@ -39,11 +40,8 @@ def is_project(path: Path) -> bool:
 
 def discover_roots() -> list[Path]:
     roots: list[Path] = []
-    examples = Path("examples")
-    if examples.is_dir():
-        for path in examples.iterdir():
-            if path.is_dir() and path.name.lower().replace("_", "-").startswith("esp-idf"):
-                roots.append(path)
+    if ESP_IDF_EXAMPLES_ROOT.is_dir():
+        roots.append(ESP_IDF_EXAMPLES_ROOT)
 
     for firmware_root in (Path("firmware"), Path("Firmware"), Path("FirmWare")):
         if firmware_root.is_dir():
