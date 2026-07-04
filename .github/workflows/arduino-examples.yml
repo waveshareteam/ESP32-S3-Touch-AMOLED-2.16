@@ -1,0 +1,146 @@
+name: Arduino examples
+
+on:
+  pull_request:
+    paths:
+      - "examples/**"
+      - ".github/workflows/arduino-examples.yml"
+      - ".github/scripts/discover_arduino_examples.py"
+  push:
+    branches:
+      - main
+    paths:
+      - "examples/**"
+      - ".github/workflows/arduino-examples.yml"
+      - ".github/scripts/discover_arduino_examples.py"
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Arduino example directory name, path, sketch, or all"
+        required: false
+        default: "all"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Discover examples
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.examples.outputs.matrix }}
+      has_examples: ${{ steps.examples.outputs.has_examples }}
+      examples: ${{ steps.examples.outputs.examples }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Discover changed Arduino examples
+        id: examples
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            python .github/scripts/discover_arduino_examples.py \
+              --example "${{ inputs.project }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            python .github/scripts/discover_arduino_examples.py \
+              --base-ref "${{ github.event.pull_request.base.sha }}" \
+              --head-ref "${{ github.sha }}" \
+              --fallback-all
+          else
+            before="${{ github.event.before }}"
+            if [[ "$before" == "0000000000000000000000000000000000000000" ]]; then
+              before=""
+            fi
+            python .github/scripts/discover_arduino_examples.py \
+              --base-ref "$before" \
+              --head-ref "${{ github.sha }}" \
+              --fallback-all
+          fi
+
+      - name: Summary
+        shell: bash
+        run: |
+          if [[ "${{ steps.examples.outputs.has_examples }}" == "true" ]]; then
+            {
+              echo "### Arduino examples selected"
+              echo
+              echo '${{ steps.examples.outputs.examples }}' | tr ',' '\n' | sed '/^$/d' | sed 's/^/- /'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No Arduino example changes detected." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  build:
+    name: Build ${{ matrix.example }} (Arduino ESP32 ${{ matrix.core_version }})
+    needs: discover
+    if: needs.discover.outputs.has_examples == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Cache Arduino packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.arduino15/packages
+            ~/.cache/arduino
+          key: ${{ runner.os }}-arduino-esp32-${{ matrix.core_version }}
+
+      - name: Install ESP32 Arduino core
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          arduino-cli config init --overwrite
+          arduino-cli config set board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install "esp32:esp32@${{ matrix.core_version }}"
+          arduino-cli core list
+
+      - name: Prepare Arduino config headers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          library_path="${GITHUB_WORKSPACE}/${{ matrix.library_path }}"
+          sketch_path="${GITHUB_WORKSPACE}/${{ matrix.example }}"
+
+          copy_if_missing() {
+            local source="$1"
+            local target="$2"
+            if [[ -f "$source" && ! -e "$target" ]]; then
+              cp "$source" "$target"
+            fi
+          }
+
+          copy_if_missing "$library_path/Mylibrary/pin_config.h" "$sketch_path/pin_config.h"
+          copy_if_missing "$library_path/lv_conf.h" "$sketch_path/lv_conf.h"
+
+      - name: Compile Arduino sketch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          library_path="${GITHUB_WORKSPACE}/${{ matrix.library_path }}"
+          include_flags="-I${library_path} -I${library_path}/Mylibrary"
+
+          arduino-cli compile \
+            --fqbn "${{ matrix.fqbn }}" \
+            --board-options "${{ matrix.board_options }}" \
+            --libraries "$library_path" \
+            --build-property "compiler.c.extra_flags=${include_flags}" \
+            --build-property "compiler.cpp.extra_flags=${include_flags}" \
+            --warnings default \
+            "${{ matrix.example }}"
