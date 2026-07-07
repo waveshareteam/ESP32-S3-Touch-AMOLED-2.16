@@ -1,49 +1,83 @@
-# Waveshare ESP32-S3-Touch-AMOLED-2.16 Product Engineering Sample Program
+# ESP32-S3-Touch-AMOLED-2.16
 
-ESP32-S3-Touch-AMOLED-2.16 ESP32-S3 2.16inch AMOLED Touch Watch Development Board, 480×480 Pixels, QSPI Interface, Onboard Dual Digital Microphones Array, ESP32 With Display
+Sample programs, firmware recovery artifacts, and hardware references for the
+Waveshare ESP32-S3-Touch-AMOLED-2.16 development board.
 
----
+The board is an ESP32-S3 based 2.16 inch AMOLED touch watch development board
+with a 480 x 480 QSPI display and onboard digital microphones.
 
-## 🔧 Configuration
+## Repository Layout
 
-You can find detailed configuration information on the product wiki page
+```text
+examples/esp-idf/      ESP-IDF first-party examples
+examples/arduino/      Arduino first-party sketches and bundled libraries
+firmware/              Factory flashing and recovery binaries
+schematic/             Public schematic files
+dimensions/            Mechanical reference files
+config/                Shared ESP-IDF configuration overlays
+docs/                  Repository, CI, component, and firmware notes
+```
 
----
+Historical versioned example roots were removed. Use the canonical example paths for new work.
 
-## 🛠️ Contributing
+## Examples
 
-We welcome contributions! Here’s how you can help:
+ESP-IDF projects are under `examples/esp-idf/`:
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes with clear descriptions.
-4. Submit a pull request for review.
+- `01_AXP2101`
+- `02_lvgl_demo_v9`
+- `03_esp-brookesia`
+- `04_Immersive_block`
+- `05_Spec_Analyzer`
 
----
+Arduino sketches are under `examples/arduino/`:
 
-## 🧩 Issues and Support
+- `01_HelloWorld`
+- `02_GFX_AsciiTable`
+- `03_LVGL_AXP2101_ADC_Data`
+- `04_LVGL_QMI8658_ui`
+- `05_LVGL_Widgets`
+- `06_ES7210`
+- `07_ES8311`
 
-If you encounter any issues:
+Bundled Arduino libraries are kept in `examples/arduino/libraries/` and are
+used by the product sketches. Their own library examples are not part of the
+default product CI matrix.
 
-- Check the [Issues](../../issues) section.
-- Create a new issue with detailed information.
-- Refer to the documentation for troubleshooting tips.
-- Contact the Waveshare team and provide the order number to obtain technical support.
+## Continuous Integration
 
----
+GitHub Actions builds first-party examples only:
 
-## 📜 License
+- ESP-IDF examples with ESP-IDF `v5.5.4` and `v6.0.2`
+- Arduino sketches with Arduino-ESP32 `3.3.10`
 
-This repository is licensed under the Apache License License. See the `LICENSE` file for details.
+See `docs/ci.md` for the matrix, dispatch inputs, and artifact behavior.
 
----
+## Firmware
 
-## 🙌 Acknowledgments
+Factory binaries in `firmware/` are checked-in recovery artifacts, not CI build
+outputs. CI-generated ESP-IDF and Arduino firmware packages are uploaded as workflow
+artifacts and are not committed to the repository.
 
-- Waveshare for their excellent hardware platforms and software support
-- The Espressif Team for their continuous support.
-- Open-source contributors who make these projects possible.
+See `docs/firmware.md` and `firmware/README.md` for details.
 
----
+## Documentation
 
-Thank you for using Waveshare Electronics Products! 🚀
+- `docs/repository-structure.md`
+- `docs/ci.md`
+- `docs/components.md`
+- `docs/firmware.md`
+- `docs/brookesia.md`
+
+## Contributing and Support
+
+Contributions and issue reports are welcome. Please read:
+
+- `CONTRIBUTING.md`
+- `SUPPORT.md`
+- `SECURITY.md`
+
+## License
+
+This repository is licensed under the Apache License 2.0. See `LICENSE` for
+details.
