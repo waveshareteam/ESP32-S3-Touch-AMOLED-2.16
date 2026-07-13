@@ -29,11 +29,23 @@ Arduino_DataBus *bus = new Arduino_ESP32QSPI(
   LCD_SDIO2 /* SDIO2 */, LCD_SDIO3 /* SDIO3 */);
 
 Arduino_CO5300 *gfx = new Arduino_CO5300(
-  bus, LCD_RESET /* RST */, 0 /* rotation */, LCD_WIDTH /* width */, LCD_HEIGHT /* height */, 0, 0, 0, 0);
+  bus, GFX_NOT_DEFINED /* RST */, 0 /* rotation */, LCD_WIDTH /* width */, LCD_HEIGHT /* height */, 0, 0, 0, 0);
 
 TouchDrvCST92xx touch;
-int16_t x[5], y[5];
-volatile bool isPressed = false;
+int16_t x[2], y[2];
+volatile bool touchPending = false;
+
+void IRAM_ATTR onTouchInterrupt() {
+  touchPending = true;
+}
+
+bool takeTouchInterrupt() {
+  noInterrupts();
+  const bool pending = touchPending;
+  touchPending = false;
+  interrupts();
+  return pending;
+}
 
 #if LV_USE_LOG != 0
 /* Serial debugging */
@@ -81,42 +93,42 @@ void example_increase_reboot(void *arg) {
 
 /*Read the touchpad*/
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
-  if (isPressed) {
-    isPressed = false;
-    uint8_t touched = touch.getPoint(x, y, touch.getSupportTouchPoint());
-    if (touched) {
-      data->state = LV_INDEV_STATE_PR;
+  if (!takeTouchInterrupt()) {
+    return;
+  }
 
-      /*Set the coordinates*/
-      data->point.x = x[0];
-      data->point.y = y[0];
+  uint8_t touched = touch.getPoint(x, y, touch.getSupportTouchPoint());
+  if (touched) {
+    data->state = LV_INDEV_STATE_PR;
 
-      USBSerial.print("Data x ");
-      USBSerial.print(x[0]);
+    /*Set the coordinates*/
+    data->point.x = x[0];
+    data->point.y = y[0];
 
-      USBSerial.print("Data y ");
-      USBSerial.println(y[0]);
-    } else {
-      data->state = LV_INDEV_STATE_REL;
-    }
+    USBSerial.print("Data x ");
+    USBSerial.print(x[0]);
+
+    USBSerial.print("Data y ");
+    USBSerial.println(y[0]);
+  } else {
+    data->state = LV_INDEV_STATE_REL;
   }
 }
 
 void setup() {
   USBSerial.begin(115200); /* prepare for possible serial debug */
 
-  Wire.begin(IIC_SDA, IIC_SCL);
+  // The display and touch controller share GPIO2, so reset them only once.
+  pinMode(LCD_RESET, OUTPUT);
+  digitalWrite(LCD_RESET, HIGH);
+  delay(10);
+  digitalWrite(LCD_RESET, LOW);
+  delay(200);
+  digitalWrite(LCD_RESET, HIGH);
+  delay(200);
 
-  digitalWrite(TP_RST, LOW);
-  delay(30);
-  digitalWrite(TP_RST, HIGH);
-  delay(50);
-  delay(1000);
-
-  Wire.begin(IIC_SDA, IIC_SCL);
-
-  touch.setPins(TP_RST, TP_INT);
-  bool result = touch.begin(Wire, 0x5A, IIC_SDA, IIC_SCL);
+  touch.setPins(GFX_NOT_DEFINED, TP_INT);
+  bool result = touch.begin(Wire, CST92XX_SLAVE_ADDRESS, IIC_SDA, IIC_SCL);
   if (result == false) {
     Serial.println("touch is not online...");
     while (1) delay(1000);
@@ -128,17 +140,11 @@ void setup() {
     Serial.println(" : The screen is covered");
   },
                                NULL);
-  Serial.println("Enter touch sleep mode.");
-  touch.sleep();
-  touch.reset();
   touch.setMaxCoordinates(480, 480);
   touch.setSwapXY(true);
   touch.setMirrorXY(true, false);
-  attachInterrupt(
-    TP_INT, []() {
-      isPressed = true;
-    },
-    FALLING);
+  pinMode(TP_INT, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(TP_INT), onTouchInterrupt, FALLING);
 
   if (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL)) {
     Serial.println("Failed to find QMI8658 - check your wiring!");
