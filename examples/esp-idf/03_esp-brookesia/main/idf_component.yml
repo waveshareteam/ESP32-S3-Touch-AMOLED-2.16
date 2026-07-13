@@ -1,0 +1,4 @@
+## IDF Component Manager Manifest File
+dependencies:
+  waveshare/esp32_s3_touch_amoled_2_16:
+    version: "^2.0.1"
