@@ -33,7 +33,7 @@ Arduino_CO5300 *gfx = new Arduino_CO5300(
 
 TouchDrvCST92xx touch;
 int16_t x[5], y[5];
-bool isPressed = false;
+volatile bool isPressed = false;
 
 #if LV_USE_LOG != 0
 /* Serial debugging */
@@ -82,9 +82,9 @@ void example_increase_reboot(void *arg) {
 /*Read the touchpad*/
 void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
   if (isPressed) {
+    isPressed = false;
     uint8_t touched = touch.getPoint(x, y, touch.getSupportTouchPoint());
     if (touched) {
-      isPressed = false;
       data->state = LV_INDEV_STATE_PR;
 
       /*Set the coordinates*/
