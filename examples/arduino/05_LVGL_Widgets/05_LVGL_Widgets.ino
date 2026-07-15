@@ -29,7 +29,7 @@ Arduino_DataBus *bus = new Arduino_ESP32QSPI(
   LCD_SDIO2 /* SDIO2 */, LCD_SDIO3 /* SDIO3 */);
 
 Arduino_CO5300 *gfx = new Arduino_CO5300(
-  bus, GFX_NOT_DEFINED /* RST */, 0 /* rotation */, LCD_WIDTH /* width */, LCD_HEIGHT /* height */, 0, 0, 0, 0);
+  bus, LCD_RESET /* RST */, 0 /* rotation */, LCD_WIDTH /* width */, LCD_HEIGHT /* height */, 0, 0, 0, 0);
 
 TouchDrvCST92xx touch;
 int16_t x[2], y[2];
@@ -118,16 +118,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data) {
 void setup() {
   USBSerial.begin(115200); /* prepare for possible serial debug */
 
-  // The display and touch controller share GPIO2, so reset them only once.
-  pinMode(LCD_RESET, OUTPUT);
-  digitalWrite(LCD_RESET, HIGH);
-  delay(10);
-  digitalWrite(LCD_RESET, LOW);
-  delay(200);
-  digitalWrite(LCD_RESET, HIGH);
-  delay(200);
-
-  touch.setPins(GFX_NOT_DEFINED, TP_INT);
+  touch.setPins(TP_RST, TP_INT);
   bool result = touch.begin(Wire, CST92XX_SLAVE_ADDRESS, IIC_SDA, IIC_SCL);
   if (result == false) {
     Serial.println("touch is not online...");
