@@ -21,7 +21,7 @@
 #define PIN_ES7210_BCLK       9
 #define PIN_ES7210_LRCK       45
 #define PIN_ES7210_DIN        10
-#define PIN_ES7210_MCLK       16
+#define PIN_ES7210_MCLK       42
 #define PIN_ES8311_DOUT       8
 
 #define PA                    46
