@@ -1,17 +1,8 @@
 # Support
 
+[简体中文](SUPPORT_ZH.md)
+
 For product usage questions, start with the product wiki and repository issues.
-
-When opening an issue, include:
-
-- Board name and hardware revision if known
-- Example path
-- Framework and version
-- Steps to reproduce
-- Expected behavior
-- Actual behavior
-- Photos, logs, or serial output when helpful
-
-For order-specific or warranty support, contact Waveshare support through the
-official product support channel and include the order information requested by
-the support team.
+Include the board and revision when known, the example path, framework version,
+reproduction steps, expected and actual behavior, and relevant logs. For order
+or warranty support, use the official Waveshare product support channel.

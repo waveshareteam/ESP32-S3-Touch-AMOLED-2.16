@@ -1,0 +1,12 @@
+{
+  "build_override_patterns": [],
+  "documentation_patterns": [],
+  "documentation_asset_patterns": [],
+  "ignore_build_patterns": [],
+  "firmware_patterns": ["firmware/**"],
+  "esp_idf_shared_patterns": [],
+  "arduino_shared_patterns": ["examples/arduino/libraries/**"],
+  "esp_idf_global_patterns": ["config/**"],
+  "arduino_global_patterns": [],
+  "global_build_patterns": [".github/workflows/**", "scripts/**", "tests/**", "releases/**"]
+}

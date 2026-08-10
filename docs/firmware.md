@@ -1,11 +1,13 @@
-# Firmware Artifacts
+# Firmware and factory recovery
 
-`firmware/` contains factory binary artifacts for user flashing and recovery flows. These binaries are not source projects and are not built by CI.
+[简体中文](firmware_ZH.md) · [Home](../README.md)
 
-Source-maintained firmware should live under `examples/esp-idf/`, `examples/arduino/`, or another documented source directory with its own validation path.
+`firmware/ESP32-S3-Touch-AMOLED-2.16-FactoryOnly-260318.bin` is an immutable
+factory recovery delivery. It is inventoried and reported separately from CI;
+the normal example matrix neither builds nor repackages it. Source and build
+instructions for this factory image are not included in this repository yet and
+may be added in a later update.
 
-CI build outputs are packaged by `releases/package_firmware.py` and uploaded as workflow artifacts. The generated zip contains `manifest.json`, flash helper scripts, flash arguments, and the binaries needed by esptool.
-
-For local release packaging, build the target project first and run the Python script from the repository root. Generated archives are written under `releases/dist/` by default.
-
-Use `releases/download_artifacts.py` to download and extract firmware artifacts from a successful GitHub Actions run into `releases/downloads/`.
+Successful example CI builds are separate diagnostic artifacts packaged by
+`releases/package_firmware.py`. See [release tools](../releases/README.md) for
+the archive format and download flow.

@@ -1,21 +1,15 @@
 # Contributing
 
-Thank you for improving this repository.
+[简体中文](CONTRIBUTING_ZH.md)
 
-## Workflow
-
-1. Open an issue for behavior changes or larger maintenance work.
-2. Create a topic branch with a concise repository-style name.
-3. Keep changes focused and avoid committing generated build outputs.
-4. Update documentation when paths, build behavior, or firmware artifacts
-   change.
-5. Open a pull request and complete the pull request template.
+Keep contributions focused, avoid generated build outputs, and update the
+matching documentation when paths, CI behavior, or delivery artifacts change.
+Open an issue before behavioral changes or larger maintenance work, then use a
+topic branch and complete the pull-request template.
 
 ## Validation
 
-Use GitHub Actions as the source of build validation. The CI workflow builds
-first-party ESP-IDF and Arduino examples and uploads ESP-IDF firmware artifacts
-after successful builds.
-
-Do not include local machine paths, usernames, tool installation paths, or other
-host-specific details in public issue, pull request, or release text.
+Example build validation is performed by GitHub Actions. The lightweight gate
+always runs documentation policy, discovery, and routing tests; example builds
+run only when the complete diff selects them. Do not include host-specific paths,
+user names, device identifiers, or tool provenance in public text.
