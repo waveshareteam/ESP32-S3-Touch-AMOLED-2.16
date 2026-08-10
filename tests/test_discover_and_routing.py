@@ -200,6 +200,12 @@ class RoutingTests(unittest.TestCase):
 
     def test_workflow_uses_the_actual_routing_command_and_gate(self) -> None:
         workflow = (ROOT / ".github/workflows/examples.yml").read_text(encoding="utf-8")
+        self.assertEqual(workflow.count("uses: actions/checkout@v6"), 3)
+        self.assertEqual(workflow.count("uses: actions/upload-artifact@v7"), 2)
+        self.assertNotIn("actions/checkout@v4", workflow)
+        self.assertNotIn("actions/upload-artifact@v4", workflow)
+        self.assertIn("uses: arduino/setup-arduino-cli@v2", workflow)
+        self.assertNotIn("arduino/setup-arduino-cli@v3", workflow)
         self.assertIn("python3 scripts/ci_routing.py --base \"$BASE\" --github-output \"$GITHUB_OUTPUT\"", workflow)
         self.assertIn("python3 scripts/markdown_policy.py", workflow)
         self.assertIn("python3 -m unittest discover -s tests -v", workflow)

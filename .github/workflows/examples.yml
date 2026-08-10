@@ -29,7 +29,7 @@ jobs:
       arduino_count: ${{ steps.route.outputs.arduino_count }}
       firmware_changed: ${{ steps.route.outputs.firmware_changed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Check repository documentation policy
@@ -61,7 +61,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.lightweight-gate.outputs.esp_idf_matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build ${{ matrix.path }} with ESP-IDF ${{ matrix.idf }}
         shell: bash
         run: |
@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           python3 releases/package_firmware.py --framework esp-idf --project "${{ matrix.path }}" --build-dir "build/${{ matrix.name }}-${{ matrix.idf }}" --name "ESP32-S3-Touch-AMOLED-2.16-${{ matrix.name }}-${{ matrix.idf }}" --framework-version "${{ matrix.idf }}" --target esp32s3 --git-sha "${{ github.sha }}" --output-dir release-artifacts
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: firmware-esp-idf-${{ matrix.name }}-${{ matrix.idf }}
           path: release-artifacts/*.zip
@@ -86,7 +86,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.lightweight-gate.outputs.arduino_matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: arduino/setup-arduino-cli@v2
       - name: Install ESP32 Arduino core
         run: |
@@ -100,7 +100,7 @@ jobs:
       - name: Package firmware
         run: |
           python3 releases/package_firmware.py --framework arduino --project "${{ matrix.path }}" --build-dir "build/${{ matrix.name }}-${{ matrix.core }}" --name "ESP32-S3-Touch-AMOLED-2.16-${{ matrix.name }}-arduino-${{ matrix.core }}" --framework-version "${{ matrix.core }}" --target esp32s3 --git-sha "${{ github.sha }}" --output-dir release-artifacts
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: firmware-arduino-${{ matrix.name }}-${{ matrix.core }}
           path: release-artifacts/*.zip
