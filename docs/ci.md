@@ -1,19 +1,25 @@
-# CI
+# Continuous Integration
 
-The example workflow discovers build targets dynamically:
+[简体中文](ci_ZH.md) · [Home](../README.md)
 
-- ESP-IDF projects are discovered from `examples/esp-idf/*/CMakeLists.txt`.
-- Arduino sketches are discovered from `.ino` files under `examples/arduino/`, excluding `examples/arduino/libraries/**`.
+The always-visible `lightweight-gate` classifies a complete base/head diff,
+runs the repository-local documentation policy and stdlib synthetic tests, and
+publishes the selected matrices. It fails rather than guessing when the diff is
+empty or its base is unavailable.
 
-`workflow_dispatch` accepts `all`, an example directory name, or a repo-relative path. This allows maintainers to run the full matrix or a single example.
+ESP-IDF discovery covers the five direct projects in `examples/esp-idf/` with
+`v5.5.5` and `v6.0.2`. Arduino discovery covers the seven direct sketches in
+`examples/arduino/` with core `3.3.11`; `examples/arduino/libraries/**` is not a
+product sketch. `workflow_dispatch` accepts `all`, a project/sketch name, or a
+repository-relative example path.
 
-Current CI matrix:
+Markdown at the root, inside an example, beside a sketch, or in a bundled
+library gets the lightweight gate only. Direct example code selects that one
+example; shared/global inputs select the applicable full matrix. Changes under
+`firmware/` are reported but never enter the example matrix. Unknown complete
+paths conservatively select all examples and remain visible.
 
-- ESP-IDF `v5.5.4` and `v6.0.2`, target `esp32s3`.
-- Arduino-ESP32 core `3.3.10`, FQBN `esp32:esp32:esp32s3`, using bundled libraries from `examples/arduino/libraries`.
-
-Each successful ESP-IDF and Arduino matrix build uploads a flashable firmware artifact. Download the artifact zip from the workflow run, extract it, then run `flash.sh` or `flash.bat` with the board serial port.
-
-The workflow file is `.github/workflows/examples.yml`. It intentionally excludes bundled library examples from product CI.
-
-If an example requires hardware, credentials, or an upstream component that is not yet compatible with a selected framework version, document the exclusion here before excluding it from CI.
+For maintainer audits, run the documented Waveshare inventory, Markdown, and
+routing tools with `config/markdown-audit.json` and `config/ci-routing.json`.
+The repository-local policy script is deliberately a limited companion check,
+not a replacement for that full audit.

@@ -73,10 +73,11 @@ def main() -> None:
     parser.add_argument("--repo", default=".")
     parser.add_argument("--surface", choices=("esp-idf", "arduino"), required=True)
     parser.add_argument("--selector", default="all")
-    parser.add_argument("--idf-versions", default="v5.5.4,v6.0.2")
-    parser.add_argument("--arduino-core", default="3.3.10")
+    parser.add_argument("--idf-versions", default="v5.5.5,v6.0.2")
+    parser.add_argument("--arduino-core", default="3.3.11")
     parser.add_argument("--fqbn", default="esp32:esp32:esp32s3")
     parser.add_argument("--github-output")
+    parser.add_argument("--output-prefix", default="")
     args = parser.parse_args()
 
     matrix = build_matrix(args)
@@ -84,8 +85,8 @@ def main() -> None:
     count = len(matrix["include"])
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as fh:
-            fh.write(f"matrix={output}\n")
-            fh.write(f"count={count}\n")
+            fh.write(f"{args.output_prefix}matrix={output}\n")
+            fh.write(f"{args.output_prefix}count={count}\n")
     else:
         print(output)
 

@@ -1,0 +1,12 @@
+{
+  "build_override_patterns": [],
+  "documentation_patterns": ["*.md", "**/*.md", "*.markdown", "**/*.markdown", "*.rst", "**/*.rst"],
+  "documentation_asset_patterns": ["docs/*.gif", "docs/**/*.gif", "docs/*.jpeg", "docs/**/*.jpeg", "docs/*.jpg", "docs/**/*.jpg", "docs/*.pdf", "docs/**/*.pdf", "docs/*.png", "docs/**/*.png", "docs/*.svg", "docs/**/*.svg", "docs/*.webp", "docs/**/*.webp"],
+  "ignore_build_patterns": [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE/**", "config/markdown-audit.json", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "LICENSE*", "SECURITY*", "SUPPORT*"],
+  "firmware_patterns": ["firmware/**"],
+  "esp_idf_shared_patterns": ["examples/esp-idf/common/**", "examples/esp-idf/components/**"],
+  "arduino_shared_patterns": ["examples/arduino/common/**", "examples/arduino/libraries/**"],
+  "esp_idf_global_patterns": ["CMakeLists.txt", "idf_component.yml", "sdkconfig*", "partitions*.csv", "config/*.cmake", "config/**/*.cmake", "config/*.defaults", "config/**/*.defaults", "config/*.h", "config/**/*.h"],
+  "arduino_global_patterns": ["platformio.ini"],
+  "global_build_patterns": [".github/workflows/*.yml", ".github/workflows/*.yaml", "config/ci-routing.json", "scripts/**", "tests/**", "releases/**"]
+}
