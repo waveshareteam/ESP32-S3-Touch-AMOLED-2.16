@@ -1,6 +1,7 @@
 <div align="center">
   <h1>ESP32-S3-Touch-AMOLED-2.16</h1>
   <p><strong>ESP32-S3 2.16-inch 480 × 480 QSPI AMOLED touch development board</strong></p>
+  <p><img src="docs/assets/ESP32-S3-Touch-AMOLED-2.16-details-1.jpg" alt="Two perspective product renders of the Waveshare ESP32-S3-Touch-AMOLED-2.16 development board" width="720"></p>
   <p>
     <a href="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/actions/workflows/examples.yml"><img alt="Build Examples" src="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/actions/workflows/examples.yml/badge.svg"></a>
     <a href="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/waveshareteam/ESP32-S3-Touch-AMOLED-2.16"></a>

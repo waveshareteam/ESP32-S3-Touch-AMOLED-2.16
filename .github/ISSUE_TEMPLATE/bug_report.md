@@ -3,6 +3,7 @@ name: Bug report
 about: Report a reproducible problem with this repository
 labels: bug
 ---
+<!-- 简体中文：[错误报告](bug_report_ZH.md) -->
 
 ## Summary
 
@@ -38,4 +39,5 @@ What happened instead?
 
 ## Logs Or Screenshots
 
-Attach relevant serial output, build logs, screenshots, or photos.
+Attach relevant serial output, build logs, screenshots, or photos. Do not include
+passwords, tokens, device identifiers, or other sensitive information.

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Classify a complete Git diff and select first-party example CI work.
 
-This is intentionally a routing helper, not a replacement for a full Markdown
-audit.  It fails when the base/head range cannot be inspected.
+Routing policy lives in ``config/ci-routing.json``. This helper validates and
+consumes that file so the workflow and documented audit do not drift apart.
 """
 
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
+import re
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from discover_examples import discover_arduino, discover_esp_idf
 
@@ -19,11 +21,58 @@ from discover_examples import discover_arduino, discover_esp_idf
 IDF_VERSIONS = ("v5.5.5", "v6.0.2")
 ARDUINO_CORE = "3.3.11"
 FQBN = "esp32:esp32:esp32s3"
-DOC_SUFFIXES = {".md", ".markdown", ".rst"}
+CONFIG_KEYS = {
+    "build_override_patterns",
+    "documentation_patterns",
+    "documentation_asset_patterns",
+    "ignore_build_patterns",
+    "firmware_patterns",
+    "esp_idf_shared_patterns",
+    "arduino_shared_patterns",
+    "esp_idf_global_patterns",
+    "arduino_global_patterns",
+    "global_build_patterns",
+}
 
 
 def norm(path: str) -> str:
     return path.replace("\\", "/").strip("/")
+
+
+def matches(path: str, patterns: list[str]) -> bool:
+    return any(fnmatch.fnmatchcase(norm(path), norm(pattern)) for pattern in patterns)
+
+
+def load_config(repo: Path, config_path: Path | None = None) -> dict[str, list[str]]:
+    """Load the repository's single routing-policy source of truth."""
+    path = config_path or repo / "config" / "ci-routing.json"
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"cannot read routing config {path}: {error}") from error
+    if not isinstance(raw, dict):
+        raise ValueError("routing config root must be a JSON object")
+    unknown = sorted(set(raw) - CONFIG_KEYS)
+    missing = sorted(CONFIG_KEYS - set(raw))
+    if unknown:
+        raise ValueError("unknown routing config keys: " + ", ".join(unknown))
+    if missing:
+        raise ValueError("missing routing config keys: " + ", ".join(missing))
+    config: dict[str, list[str]] = {}
+    for key in sorted(CONFIG_KEYS):
+        patterns = raw[key]
+        if not isinstance(patterns, list) or not all(isinstance(item, str) for item in patterns):
+            raise ValueError(f"routing config key {key!r} must contain strings")
+        normalized: list[str] = []
+        for pattern in patterns:
+            value = norm(pattern)
+            if not value or re.match(r"^[A-Za-z]:", value) or value.startswith("/"):
+                raise ValueError(f"routing config pattern must be repository-relative: {pattern!r}")
+            if ".." in PurePosixPath(value.replace("*", "placeholder")).parts:
+                raise ValueError(f"routing config pattern must not escape the repository: {pattern!r}")
+            normalized.append(value)
+        config[key] = normalized
+    return config
 
 
 def changed_paths(repo: Path, base: str) -> list[str]:
@@ -54,53 +103,68 @@ def changed_paths(repo: Path, base: str) -> list[str]:
     return paths
 
 
-def select_for_path(path: str, idf: list[dict[str, str]], arduino: list[dict[str, str]]) -> tuple[set[str], set[str], str]:
+def select_for_path(
+    path: str,
+    idf: list[dict[str, str]],
+    arduino: list[dict[str, str]],
+    config: dict[str, list[str]],
+) -> tuple[set[str], set[str], str]:
     """Return selected names and a visible reason for one changed path."""
-    suffix = Path(path).suffix.lower()
-    if path.startswith("firmware/"):
+    if not matches(path, config["build_override_patterns"]):
+        if matches(path, config["documentation_patterns"]):
+            return set(), set(), "documentation"
+        if matches(path, config["documentation_asset_patterns"]):
+            return set(), set(), "documentation-asset"
+    if matches(path, config["firmware_patterns"]):
         return set(), set(), "firmware"
-    if suffix in DOC_SUFFIXES:
-        return set(), set(), "documentation"
-    if path.startswith("examples/arduino/libraries/"):
+    if matches(path, config["ignore_build_patterns"]):
+        return set(), set(), "non-build"
+    if matches(path, config["esp_idf_shared_patterns"]):
+        return {item["name"] for item in idf}, set(), "esp-idf-shared"
+    if matches(path, config["arduino_shared_patterns"]):
         return set(), {item["name"] for item in arduino}, "arduino-shared-library"
     if path.startswith("examples/esp-idf/"):
-        remainder = path.split("/")
-        if len(remainder) >= 3:
-            name = remainder[2]
+        parts = norm(path).split("/")
+        if len(parts) >= 3:
+            name = parts[2]
             if any(item["name"] == name for item in idf):
                 return {name}, set(), "esp-idf-project"
             return {item["name"] for item in idf}, set(), "esp-idf-removed-or-unknown-project"
     if path.startswith("examples/arduino/"):
-        remainder = path.split("/")
-        if len(remainder) >= 3:
-            name = remainder[2]
+        parts = norm(path).split("/")
+        if len(parts) >= 3:
+            name = parts[2]
             if any(item["name"] == name for item in arduino):
                 return set(), {name}, "arduino-sketch"
             return set(), {item["name"] for item in arduino}, "arduino-removed-or-unknown-sketch"
-    if path.startswith("config/"):
-        return {item["name"] for item in idf}, set(), "esp-idf-shared"
-    if (path.startswith(".github/workflows/") or path.startswith("scripts/")
-            or path.startswith("tests/") or path.startswith("releases/")):
+    if matches(path, config["global_build_patterns"]):
         return {item["name"] for item in idf}, {item["name"] for item in arduino}, "global-build-input"
+    if matches(path, config["esp_idf_global_patterns"]):
+        return {item["name"] for item in idf}, set(), "esp-idf-shared"
+    if matches(path, config["arduino_global_patterns"]):
+        return set(), {item["name"] for item in arduino}, "arduino-shared"
     return {item["name"] for item in idf}, {item["name"] for item in arduino}, "unknown-conservative-all"
 
 
-def classify(repo: Path, paths: list[str]) -> dict[str, object]:
+def classify(repo: Path, paths: list[str], config: dict[str, list[str]] | None = None) -> dict[str, object]:
+    if not paths:
+        raise ValueError("complete changed-file scope is empty")
     idf = discover_esp_idf(repo)
     arduino = discover_arduino(repo)
+    policy = config if config is not None else load_config(repo)
     selected_idf: set[str] = set()
     selected_arduino: set[str] = set()
     reasons: dict[str, str] = {}
     unknown: list[str] = []
     firmware: list[str] = []
     for path in paths:
-        route_idf, route_arduino, reason = select_for_path(path, idf, arduino)
+        route_idf, route_arduino, reason = select_for_path(path, idf, arduino, policy)
         selected_idf.update(route_idf)
         selected_arduino.update(route_arduino)
         reasons[path] = reason
         if reason == "unknown-conservative-all":
             unknown.append(path)
-        if reason == "firmware":
+        if matches(path, policy["firmware_patterns"]):
             firmware.append(path)
     selected_idf_entries = [item for item in idf if item["name"] in selected_idf]
     selected_arduino_entries = [item for item in arduino if item["name"] in selected_arduino]
@@ -134,9 +198,11 @@ def main() -> int:
     parser.add_argument("--repo", default=".")
     parser.add_argument("--base", required=True, help="verified Git base revision")
     parser.add_argument("--github-output")
+    parser.add_argument("--routing-config", type=Path, help="override routing policy path")
     args = parser.parse_args()
+    repo = Path(args.repo).resolve()
     try:
-        result = classify(Path(args.repo).resolve(), changed_paths(Path(args.repo).resolve(), args.base))
+        result = classify(repo, changed_paths(repo, args.base), load_config(repo, args.routing_config))
     except ValueError as error:
         print(f"CI routing error: {error}", file=sys.stderr)
         return 2

@@ -1,6 +1,7 @@
 <div align="center">
   <h1>ESP32-S3-Touch-AMOLED-2.16</h1>
   <p><strong>ESP32-S3 2.16 英寸 480 × 480 QSPI AMOLED 触摸开发板</strong></p>
+  <p><img src="docs/assets/ESP32-S3-Touch-AMOLED-2.16-details-1.jpg" alt="Waveshare ESP32-S3-Touch-AMOLED-2.16 开发板的两个透视角度产品渲染图" width="720"></p>
   <p>
     <a href="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/actions/workflows/examples.yml"><img alt="构建示例" src="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/actions/workflows/examples.yml/badge.svg"></a>
     <a href="https://github.com/waveshareteam/ESP32-S3-Touch-AMOLED-2.16/releases/latest"><img alt="最新发布" src="https://img.shields.io/github/v/release/waveshareteam/ESP32-S3-Touch-AMOLED-2.16"></a>
@@ -20,7 +21,7 @@
 
 ## ✨ 概述
 
-这是 ESP32-S3-Touch-AMOLED-2.16 的单产品仓库，提供第一方 ESP-IDF 与
+这是 ESP32-S3-Touch-AMOLED-2.16 的单产品仓库，提供第一方 ESP-IDF 和
 Arduino 示例、出厂恢复固件、原理图和机械尺寸资料。
 
 ## 🖥️ 硬件概览
@@ -42,8 +43,8 @@ Arduino 示例、出厂恢复固件、原理图和机械尺寸资料。
 
 ## 🧪 示例和工具链
 
-5 个第一方 ESP-IDF 项目使用 ESP-IDF `v5.5.5` 与 `v6.0.2` 测试；7 个
-第一方 Arduino 草图使用 Arduino-ESP32 `3.3.11` 测试。随附库中的示例不进入产品矩阵。
+5 个第一方 ESP-IDF 项目使用 ESP-IDF `v5.5.5` 和 `v6.0.2` 测试；7 个第一方
+Arduino 草图使用 Arduino-ESP32 `3.3.11` 测试。随附库中的示例不进入产品矩阵。
 
 - [ESP-IDF 示例](examples/esp-idf/)
 - [Arduino 示例](examples/arduino/)
@@ -59,13 +60,14 @@ Arduino 示例、出厂恢复固件、原理图和机械尺寸资料。
 
 ## 🗂️ 仓库布局
 
-`examples/` 保存第一方源代码项目；`firmware/` 保存独立的出厂交付物；
-`releases/` 保存打包辅助工具。CI 范围和文档所有权见[结构指南](docs/repository-structure_ZH.md)。
+`examples/` 保存第一方源代码项目；`firmware/` 保存独立的出厂交付物；`releases/`
+保存打包辅助工具。CI 范围和文档所有权见[结构指南](docs/repository-structure_ZH.md)。
 
 ## 🤝 支持与贡献
 
 产品支持请参阅 [SUPPORT_ZH.md](SUPPORT_ZH.md)，贡献要求请参阅
-[CONTRIBUTING_ZH.md](CONTRIBUTING_ZH.md)。本仓库没有经核实的私密漏洞报告渠道，因此不在此宣传安全报告方式。
+[CONTRIBUTING_ZH.md](CONTRIBUTING_ZH.md)。本仓库没有经核实的私密漏洞报告渠道，
+因此不在此宣传安全报告方式。
 
 ## 📄 许可证
 
