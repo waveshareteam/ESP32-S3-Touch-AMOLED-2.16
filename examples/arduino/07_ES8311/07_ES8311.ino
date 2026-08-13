@@ -18,7 +18,7 @@ I2SClass i2s;
 #define I2S_WS_IO 45
 #define I2S_DO_IO 8
 
-const char *TAG = "esp32p4_i2s_es8311";
+const char *TAG = "touch_amoled_es8311";
 
 esp_err_t es8311_codec_init(void) {
   es8311_handle_t es_handle = es8311_create(I2C_NUM, ES8311_ADDRRES_0);

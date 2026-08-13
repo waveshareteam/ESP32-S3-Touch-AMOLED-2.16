@@ -8,6 +8,8 @@ ESP-IDF 示例使用托管板级组件 `waveshare/esp32_s3_touch_amoled_2_16`，
 `XPowersLib`、Brookesia 源码树和本地 app 以及 `bsp_extra` 保持本地：没有语义等价证据允许删除它们。
 `bsp_extra` 是频谱分析仪的板级/演示胶水代码，不是已声明的可复用组件。
 
-对仓库原理图进行的只读静态交叉核对显示：第一方板级/示例源与 AMOLED QSPI/reset、触摸
-I2C/INT/RST、音频 I2S/PA、BOOT GPIO0 以及 QMI8658 地址的证据一致。托管 BSP 内部的
-LCD power/TE、IRQ 和 codec 初始化不在当前 checkout 中，未独立验证。没有修改任何引脚或硬件参数。
+原理图第 1 页佐证了维护中的显示 QSPI 引脚（GPIO4/5/6/7、GPIO38、GPIO12 和 reset GPIO39）、
+共享 I2C（SDA GPIO15、SCL GPIO14）、QMI8658 I2C 地址（0x6B）、音频引脚（MCLK GPIO42、
+SCLK GPIO9、LRCK GPIO45、DOUT GPIO8）以及 BOOT GPIO0。托管 BSP 内部、触摸地址、SD 和
+USB 仍未独立验证。AXP2101 的 `sdkconfig.defaults` 原有格式错误已按原理图所证实的
+SDA GPIO15/SCL GPIO14 修正；原理图引脚分配没有改变。
