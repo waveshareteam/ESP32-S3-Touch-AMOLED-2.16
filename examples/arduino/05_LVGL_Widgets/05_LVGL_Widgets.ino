@@ -137,6 +137,7 @@ void setup() {
   pinMode(TP_INT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(TP_INT), onTouchInterrupt, FALLING);
 
+  // This bundled SensorLib names the schematic-strapped 0x6B address as "L".
   if (!qmi.begin(Wire, QMI8658_L_SLAVE_ADDRESS, IIC_SDA, IIC_SCL)) {
     Serial.println("Failed to find QMI8658 - check your wiring!");
     while (1) {

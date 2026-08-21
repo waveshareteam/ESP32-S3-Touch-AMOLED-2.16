@@ -11,8 +11,10 @@ it only with evidence from an authorized compatible component release.
 local: no semantic-equivalence evidence authorizes their removal. `bsp_extra`
 is spectrum-analyzer board/demo glue rather than a declared reusable component.
 
-A read-only static cross-check against the repository schematic found consistent
-AMOLED QSPI/reset, touch I2C/INT/RST, audio I2S/PA, BOOT GPIO0, and QMI8658
-address evidence in the first-party board/example sources. Managed-BSP internal
-LCD power/TE, IRQ, and codec initialization are not present in this checkout and
-were not independently verified. No pin or hardware parameter was changed.
+Schematic page 1 corroborates the maintained display QSPI pins (GPIO4/5/6/7,
+GPIO38, GPIO12, and reset GPIO39), shared I2C (SDA GPIO15 and SCL GPIO14), the
+QMI8658 I2C address (0x6B), audio pins (MCLK GPIO42, SCLK GPIO9, LRCK GPIO45,
+and DOUT GPIO8), and BOOT GPIO0. Managed-BSP internals, touch address, SD, and
+USB remain outside this independent verification. The malformed AXP2101
+`sdkconfig.defaults` entries were corrected to the existing schematic-backed
+SDA GPIO15/SCL GPIO14 values; no schematic pin assignment was changed.
