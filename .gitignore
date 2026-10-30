@@ -2,6 +2,7 @@
 
 **/.gitmodules
 **/.gitattributes
+!/.gitattributes
 **/.gitkeep
 **/.vscode
 **/.gitindex

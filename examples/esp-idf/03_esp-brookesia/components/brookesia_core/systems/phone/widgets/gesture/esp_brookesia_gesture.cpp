@@ -34,6 +34,7 @@ Gesture::~Gesture()
 bool Gesture::begin(lv_obj_t *parent)
 {
     ESP_Brookesia_LvTimer_t detect_timer = nullptr;
+    ESP_Brookesia_LvTimer_t bottom_hint_timer = nullptr;
     ESP_Brookesia_LvObj_t event_mask_obj = nullptr;
     array<ESP_Brookesia_LvObj_t, static_cast<int>(Gesture::IndicatorBarType::MAX)> indicator_bars = {};
     array<ESP_Brookesia_LvAnim_t, static_cast<int>(Gesture::IndicatorBarType::MAX)> indicator_bar_scale_back_anims = {};
@@ -47,6 +48,9 @@ bool Gesture::begin(lv_obj_t *parent)
     /* Create objects */
     detect_timer = ESP_BROOKESIA_LV_TIMER(onTouchDetectTimerCallback, data.detect_period_ms, this);
     ESP_UTILS_CHECK_NULL_RETURN(detect_timer, false, "Create detect timer failed");
+    bottom_hint_timer = ESP_BROOKESIA_LV_TIMER(onBottomIndicatorBarHintTimerCallback, 1000, this);
+    ESP_UTILS_CHECK_NULL_RETURN(bottom_hint_timer, false, "Create bottom hint timer failed");
+    lv_timer_pause(bottom_hint_timer.get());
     event_mask_obj = ESP_BROOKESIA_LV_OBJ(obj, parent);
     ESP_UTILS_CHECK_NULL_RETURN(event_mask_obj, false, "Create event & mask object failed");
     press_event_code = core.getFreeEventCode();
@@ -94,6 +98,7 @@ bool Gesture::begin(lv_obj_t *parent)
     // Save objects
     _touch_device = core.getTouchDevice();
     _detect_timer = detect_timer;
+    _bottom_hint_timer = bottom_hint_timer;
     _event_mask_obj = event_mask_obj;
     _press_event_code = press_event_code;
     _pressing_event_code = pressing_event_code;
@@ -119,6 +124,7 @@ bool Gesture::del(void)
     _direction_tan_threshold = 0;
     _touch_start_tick = 0;
     _detect_timer.reset();
+    _bottom_hint_timer.reset();
     resetGestureInfo();
     _event_mask_obj.reset();
     for (int i = 0; i < static_cast<int>(Gesture::IndicatorBarType::MAX); i++) {
@@ -287,6 +293,10 @@ bool Gesture::setIndicatorBarLengthByOffset(Gesture::IndicatorBarType type, int 
     int max_len = 0;
     float erase_len_ratio = 0;
 
+    if ((type == Gesture::IndicatorBarType::BOTTOM) && _bottom_hint_timer) {
+        // A swipe that starts while the open-app hint is showing keeps the bar
+        lv_timer_pause(_bottom_hint_timer.get());
+    }
     if (!data.flags.enable_indicator_bars[type_int]) {
         return true;
     }
@@ -363,7 +373,7 @@ bool Gesture::controlIndicatorBarScaleBackAnim(Gesture::IndicatorBarType type, b
             return true;
         }
         if (length == _indicator_bar_max_lengths[type_int]) {
-            if (type != Gesture::IndicatorBarType::BOTTOM) {
+            if (!checkIndicatorBarPersistent(type)) {
                 ESP_UTILS_CHECK_FALSE_RETURN(
                     setIndicatorBarVisible(type, false), false, "Set indicator bar visible failed"
                 );
@@ -383,6 +393,23 @@ bool Gesture::controlIndicatorBarScaleBackAnim(Gesture::IndicatorBarType type, b
             _flags.is_indicator_bar_scale_back_anim_running[type_int] = false;
         }
     }
+
+    return true;
+}
+
+bool Gesture::showBottomIndicatorBarHint(void)
+{
+    ESP_UTILS_LOGD("Show bottom indicator bar hint");
+    ESP_UTILS_CHECK_FALSE_RETURN(checkInitialized(), false, "Not initialized");
+
+    if (data.bottom_indicator_bar_hint_ms == 0) {
+        return setIndicatorBarVisible(Gesture::IndicatorBarType::BOTTOM, false);
+    }
+    ESP_UTILS_CHECK_FALSE_RETURN(setIndicatorBarVisible(Gesture::IndicatorBarType::BOTTOM, true), false,
+                                 "Show bottom indicator bar failed");
+    lv_timer_set_period(_bottom_hint_timer.get(), data.bottom_indicator_bar_hint_ms);
+    lv_timer_reset(_bottom_hint_timer.get());
+    lv_timer_resume(_bottom_hint_timer.get());
 
     return true;
 }
@@ -611,6 +638,21 @@ void Gesture::onIndicatorBarScaleBackAnimationExecuteCallback(void *var, int32_t
     }
 }
 
+void Gesture::onBottomIndicatorBarHintTimerCallback(struct _lv_timer_t *t)
+{
+    ESP_UTILS_CHECK_NULL_EXIT(t, "Invalid timer");
+    Gesture *gesture = static_cast<Gesture *>(lv_timer_get_user_data(t));
+    ESP_UTILS_CHECK_NULL_EXIT(gesture, "Invalid gesture");
+
+    lv_timer_pause(t);
+    // Leave the bar to the swipe if one is in progress; its release hides it
+    if (!gesture->checkGestureStart() &&
+            !gesture->checkIndicatorBarScaleBackAnimRunning(Gesture::IndicatorBarType::BOTTOM)) {
+        ESP_UTILS_CHECK_FALSE_EXIT(gesture->setIndicatorBarVisible(Gesture::IndicatorBarType::BOTTOM, false),
+                                   "Hide bottom indicator bar failed");
+    }
+}
+
 void Gesture::onIndicatorBarScaleBackAnimationReadyCallback(lv_anim_t *anim)
 {
     Gesture *gesture = nullptr;
@@ -628,8 +670,8 @@ void Gesture::onIndicatorBarScaleBackAnimationReadyCallback(lv_anim_t *anim)
     ESP_UTILS_CHECK_VALUE_EXIT(type_int, 0, static_cast<int>(Gesture::IndicatorBarType::MAX), "Invalid indicator bar type");
 
     gesture->_flags.is_indicator_bar_scale_back_anim_running[type_int] = false;
-    // If the animation is finished, hide the indicator bar (except the bottom one)
-    if (type != Gesture::IndicatorBarType::BOTTOM) {
+    // If the animation is finished, hide the indicator bar (except a persistent bottom one)
+    if (!gesture->checkIndicatorBarPersistent(type)) {
         ESP_UTILS_CHECK_FALSE_EXIT(gesture->setIndicatorBarVisible(type, false), "Hide indicator bar failed");
     }
 }

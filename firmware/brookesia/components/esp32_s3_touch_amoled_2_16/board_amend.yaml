@@ -1,0 +1,6 @@
+version: "1.0"
+description: "Brookesia board-manager runtime adjustments"
+apply:
+  - optional_sdcard.yaml
+  - es7210_tdm_input.yaml
+  - display_qspi_tuning.yaml

@@ -1,0 +1,31 @@
+version: "1.0"
+peripherals:
+  # ES7210 serializes the three microphones and DAC reference across four TDM
+  # slots.  The upstream generic board profile uses STD input, which cannot be
+  # reconfigured into the multi-slot stream requested by Recorder, Spectrum
+  # Analyzer, and AIChats.
+  - name: i2s_audio_in
+    format: tdm-in
+    config:
+      port: 0
+      sample_rate_hz: 24000
+      mclk_multiple: 256
+      data_bit_width: 16
+      slot_bit_width: I2S_SLOT_BIT_WIDTH_AUTO
+      slot_mode: I2S_SLOT_MODE_STEREO
+      slot_mask: I2S_TDM_SLOT0 | I2S_TDM_SLOT1 | I2S_TDM_SLOT2 | I2S_TDM_SLOT3
+      total_slot: 4
+      ws_width: 0
+      pins:
+        mclk: 42
+        bclk: 9
+        ws: 45
+        dout: -1
+        din: 10
+
+devices:
+  # Codec-dev 2.0 interprets labels in physical MIC1..MIC4 order. The board
+  # wires MIC1/MIC2 to the microphones, MIC3 to DAC echo, and leaves MIC4 open.
+  - name: audio_adc
+    config:
+      adc_channel_labels: ['FL', 'FR', 'RE', 'NA']

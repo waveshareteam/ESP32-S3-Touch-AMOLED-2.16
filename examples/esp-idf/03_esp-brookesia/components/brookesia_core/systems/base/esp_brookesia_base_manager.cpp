@@ -266,6 +266,12 @@ bool Manager::processAppRun(App *app)
     ESP_UTILS_CHECK_NULL_RETURN(app, false, "Invalid app");
     ESP_UTILS_LOGD("Process app(%d) run", app->_id);
 
+    // An app started over another one that is showing, such as from an app event, pauses that
+    // one first, the way resuming an app does; from the home screen there is no active app
+    if ((_active_app != nullptr) && (_active_app != app)) {
+        ESP_UTILS_CHECK_FALSE_RETURN(processAppPause(_active_app), false, "App process pause failed");
+    }
+
     // Process display, and get the visual area of the app
     ESP_UTILS_CHECK_FALSE_RETURN(is_display_run = display.processAppRun(app), false, "Process display before app run failed");
 

@@ -1,0 +1,8 @@
+# Preserve strict trailing-space checks while treating CRLF as a valid EOL.
+* whitespace=trailing-space,space-before-tab,cr-at-eol
+
+# Direct first-party Arduino sketches intentionally retain their CRLF bytes.
+examples/arduino/*/*.ino -text
+
+# Factory delivery images are opaque binary artifacts.
+firmware/*.bin binary
