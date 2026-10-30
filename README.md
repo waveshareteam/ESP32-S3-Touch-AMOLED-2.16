@@ -22,8 +22,8 @@
 ## ✨ Overview
 
 This single-product repository provides first-party ESP-IDF and Arduino examples,
-factory recovery firmware, schematics, and mechanical references for the
-Waveshare ESP32-S3-Touch-AMOLED-2.16.
+default factory firmware source and delivery, schematics, and mechanical
+references for the Waveshare ESP32-S3-Touch-AMOLED-2.16.
 
 ## 🖥️ Hardware Overview
 
@@ -39,9 +39,11 @@ Waveshare ESP32-S3-Touch-AMOLED-2.16.
 
 ## 📦 Firmware
 
-The checked-in factory image is an immutable recovery delivery, not an example
-build output. See [Firmware and factory recovery](docs/firmware.md); source and
-build instructions for the factory image are not included in this repository.
+The default factory firmware source is in [firmware/brookesia](firmware/brookesia/).
+Its build and factory-image instructions are in [Firmware](firmware/README.md).
+The combined delivery is named
+`ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin`; it is generated from the
+final firmware build's `flash_args`, not from an example build.
 
 ## 🧪 Examples and toolchains
 
@@ -64,8 +66,9 @@ Bundled library examples are intentionally excluded from the product matrix.
 ## 🗂️ Repository layout
 
 `examples/` contains first-party source projects; `firmware/` contains the
-separate factory delivery; `releases/` contains packaging helpers. See the
-[structure guide](docs/repository-structure.md) for CI scope and ownership.
+default firmware source and its separate factory image; `releases/` contains
+packaging helpers. See the [structure guide](docs/repository-structure.md) for
+CI scope and ownership.
 
 ## 🤝 Support and contributions
 

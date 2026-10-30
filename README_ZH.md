@@ -22,7 +22,7 @@
 ## ✨ 概述
 
 这是 ESP32-S3-Touch-AMOLED-2.16 的单产品仓库，提供第一方 ESP-IDF 和
-Arduino 示例、出厂恢复固件、原理图和机械尺寸资料。
+Arduino 示例、默认出厂固件源码及交付物、原理图和机械尺寸资料。
 
 ## 🖥️ 硬件概览
 
@@ -38,8 +38,10 @@ Arduino 示例、出厂恢复固件、原理图和机械尺寸资料。
 
 ## 📦 固件
 
-仓库中的出厂镜像是不可变的恢复交付物，不是示例构建输出。请参阅
-[固件和出厂恢复](docs/firmware_ZH.md)；该镜像的源代码和构建说明目前未包含在本仓库中。
+默认出厂固件源码位于 [firmware/brookesia](firmware/brookesia/)。构建和出厂镜像说明请参阅
+[固件](firmware/README_ZH.md)。combined 交付物命名为
+`ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin`；它严格由最终固件构建的
+`flash_args` 生成，并非示例构建输出。
 
 ## 🧪 示例和工具链
 
@@ -60,8 +62,8 @@ Arduino 草图使用 Arduino-ESP32 `3.3.11` 测试。随附库中的示例不进
 
 ## 🗂️ 仓库布局
 
-`examples/` 保存第一方源代码项目；`firmware/` 保存独立的出厂交付物；`releases/`
-保存打包辅助工具。CI 范围和文档所有权见[结构指南](docs/repository-structure_ZH.md)。
+`examples/` 保存第一方源代码项目；`firmware/` 同时保存默认固件源码及独立出厂镜像；
+`releases/` 保存打包辅助工具。CI 范围和文档所有权见[结构指南](docs/repository-structure_ZH.md)。
 
 ## 🤝 支持与贡献
 
