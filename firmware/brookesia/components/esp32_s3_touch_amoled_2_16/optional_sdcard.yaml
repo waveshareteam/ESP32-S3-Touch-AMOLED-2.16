@@ -1,0 +1,6 @@
+version: "1.0"
+devices:
+  # A missing removable card must not prevent the display and touch interface
+  # from booting.  storage_service mounts it on demand through the manager.
+  - name: fs_sdcard
+    init_skip: true

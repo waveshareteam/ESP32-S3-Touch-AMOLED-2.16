@@ -1,0 +1,16 @@
+version: "1.0"
+description: "Use PSRAM UI buffers with bounded internal SPI DMA bounce buffers"
+
+peripherals:
+  - name: spi_display
+    config:
+      spi_bus_config:
+        max_transfer_sz: 4092
+
+devices:
+  - name: display_lcd
+    config:
+      io_spi_config:
+        trans_queue_depth: 2
+        flags:
+          psram_dma_direct: false

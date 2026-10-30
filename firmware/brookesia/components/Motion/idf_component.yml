@@ -1,0 +1,8 @@
+version: 0.1.0
+dependencies:
+  idf: ">=6.1"
+  brookesia_core:
+    public: true
+  waveshare/qmi8658:
+    version: "2.0.1"
+    public: true

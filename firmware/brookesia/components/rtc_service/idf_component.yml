@@ -1,0 +1,5 @@
+version: 0.1.0
+dependencies:
+  idf: ">=6.1,<6.2"
+  waveshare/pcf85063a:
+    version: "2.0.0"

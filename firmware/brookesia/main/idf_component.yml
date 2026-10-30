@@ -1,0 +1,7 @@
+dependencies:
+  idf:
+    version: ">=6.1,<6.2"
+  espressif/cjson: "1.7.19~2"
+  waveshare_boards:
+    git: https://github.com/waveshareteam/waveshare_boards.git
+    version: eaa50c44a785de63f4e4b07ea392fd6952f0f8c9

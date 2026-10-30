@@ -1,0 +1,10 @@
+menu "UI diagnostics"
+
+    config UI_DIAGNOSTICS_ENABLE
+        bool "Enable USB UI diagnostics"
+        default y
+        help
+            Enables a small line-oriented USB-Serial/JTAG control interface for
+            on-device UI testing. It is intended for factory development only.
+
+endmenu

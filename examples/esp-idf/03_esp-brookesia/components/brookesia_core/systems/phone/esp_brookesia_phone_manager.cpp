@@ -389,11 +389,20 @@ bool Manager::processGestureScreenChange(Screen screen, void *param)
             "Gesture set right indicator bar visible failed"
         );
     }
-    ESP_UTILS_CHECK_FALSE_RETURN(
-        _gesture->setIndicatorBarVisible(
-            Gesture::IndicatorBarType::BOTTOM, _flags.enable_gesture_show_bottom_indicator_bar
-        ), false, "Gesture set bottom indicator bar visible failed"
-    );
+    if (_flags.enable_gesture_show_bottom_indicator_bar && _gesture->data.flags.enable_bottom_indicator_bar_auto_hide) {
+        // An auto-hide bar only flashes as a hint when an app opens; swipes from the bottom show it again
+        ESP_UTILS_CHECK_FALSE_RETURN(
+            (screen == Screen::APP) ? _gesture->showBottomIndicatorBarHint() :
+            _gesture->setIndicatorBarVisible(Gesture::IndicatorBarType::BOTTOM, false),
+            false, "Gesture update bottom indicator bar failed"
+        );
+    } else {
+        ESP_UTILS_CHECK_FALSE_RETURN(
+            _gesture->setIndicatorBarVisible(
+                Gesture::IndicatorBarType::BOTTOM, _flags.enable_gesture_show_bottom_indicator_bar
+            ), false, "Gesture set bottom indicator bar visible failed"
+        );
+    }
 
     return true;
 }

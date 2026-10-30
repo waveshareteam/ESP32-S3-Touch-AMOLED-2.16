@@ -51,7 +51,9 @@ public:
         Gesture::IndicatorBarData indicator_bars[static_cast<int>(Gesture::IndicatorBarType::MAX)];
         struct {
             uint8_t enable_indicator_bars[static_cast<int>(Gesture::IndicatorBarType::MAX)];
+            uint8_t enable_bottom_indicator_bar_auto_hide;  // Hide the bottom bar when no swipe is in progress
         } flags;
+        uint32_t bottom_indicator_bar_hint_ms;              // How long an auto-hide bottom bar shows when an app opens
     };
 
     enum Direction {
@@ -101,6 +103,7 @@ public:
     bool setIndicatorBarLengthByOffset(Gesture::IndicatorBarType type, int offset) const;
     bool setIndicatorBarVisible(Gesture::IndicatorBarType type, bool visible);
     bool controlIndicatorBarScaleBackAnim(Gesture::IndicatorBarType type, bool start);
+    bool showBottomIndicatorBarHint(void);
 
     bool checkInitialized(void) const
     {
@@ -147,11 +150,16 @@ private:
     };
     void resetGestureInfo(void);
     bool updateByNewData(void);
+    bool checkIndicatorBarPersistent(Gesture::IndicatorBarType type) const
+    {
+        return (type == Gesture::IndicatorBarType::BOTTOM) && !data.flags.enable_bottom_indicator_bar_auto_hide;
+    }
 
     static void onDataUpdateEventCallback(lv_event_t *event);
     static void onTouchDetectTimerCallback(struct _lv_timer_t *t);
     static void onIndicatorBarScaleBackAnimationExecuteCallback(void *var, int32_t value);
     static void onIndicatorBarScaleBackAnimationReadyCallback(lv_anim_t *anim);
+    static void onBottomIndicatorBarHintTimerCallback(struct _lv_timer_t *t);
 
     static constexpr Info GESTURE_INFO_INIT = {
         .direction = DIR_NONE,
@@ -180,6 +188,7 @@ private:
     std::array<int, static_cast<int>(Gesture::IndicatorBarType::MAX)>  _indicator_bar_max_lengths;
     uint32_t _touch_start_tick = 0;
     ESP_Brookesia_LvTimer_t _detect_timer;
+    ESP_Brookesia_LvTimer_t _bottom_hint_timer;
     ESP_Brookesia_LvObj_t _event_mask_obj;
     std::array<ESP_Brookesia_LvObj_t, static_cast<int>(Gesture::IndicatorBarType::MAX)>  _indicator_bars;
     std::array<IndicatorBarAnimVar_t, static_cast<int>(Gesture::IndicatorBarType::MAX)>  _indicator_bar_anim_var;

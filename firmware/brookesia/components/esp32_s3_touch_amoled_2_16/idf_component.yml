@@ -1,0 +1,15 @@
+version: 0.1.0
+dependencies:
+  idf:
+    version: ">=6.1,<6.2"
+  espressif/esp_board_manager:
+    version: "0.7.4"
+    public: true
+  espressif/esp_codec_dev:
+    version: "2.0.0-beta5"
+    public: true
+  espressif/esp_lvgl_adapter:
+    version: "0.7.3"
+    public: true
+  espressif/esp_lcd_co5300: "2.0.2"
+  waveshare/esp_lcd_touch_cst9217: "2.0.0"
