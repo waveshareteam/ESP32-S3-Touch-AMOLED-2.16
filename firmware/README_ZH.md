@@ -8,7 +8,7 @@
 | 文件 | 版本日期 | 用途 | 烧录偏移 |
 | --- | --- | --- | --- |
 | [ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin](ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin) | 2026-10-30 | 出厂恢复固件 | `0x0` |
-| [ESP32-S3-Touch-AMOLED-2.16-FactoryOnly-260318.bin](ESP32-S3-Touch-AMOLED-2.16-FactoryOnly-260318.bin) | 2026-03-18 | 历史出厂恢复固件，保留原文件名 | `0x0` |
+| [ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20260318.bin](ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20260318.bin) | 2026-03-18 | 历史出厂恢复固件 | `0x0` |
 
 恢复最新出厂固件前，先整片擦除 Flash：
 
