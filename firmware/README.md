@@ -8,7 +8,7 @@ Each file is a complete merged image written at `0x0`. Previous versions are ret
 | File | Version date | Purpose | Flash offset |
 | --- | --- | --- | --- |
 | [ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin](ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20261030.bin) | 2026-10-30 | Factory recovery | `0x0` |
-| [ESP32-S3-Touch-AMOLED-2.16-FactoryOnly-260318.bin](ESP32-S3-Touch-AMOLED-2.16-FactoryOnly-260318.bin) | 2026-03-18 | Historical factory recovery image; original filename retained | `0x0` |
+| [ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20260318.bin](ESP32-S3-Touch-AMOLED-2.16_FactoryOnly_20260318.bin) | 2026-03-18 | Historical factory recovery image | `0x0` |
 
 Erase the entire Flash before restoring the latest factory image:
 
